@@ -32,6 +32,7 @@ echo "Job Name is : ${env.JOB_NAME}"
 def mavenHome = tool name: 'maven3.8.5'
 
 try{  
+  notifyBuild('STARTED')
   //Get the code from Github
 stage('CheckoutCode'){
 git branch: 'development', credentialsId: '9750b4d2-c9fa-4d69-9a28-dfdda803a4ce', url: 'https://github.com/bmaheswarn/maven-web-application.git'
