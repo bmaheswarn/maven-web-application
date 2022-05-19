@@ -24,8 +24,10 @@ def SendSlackNotification(String buildStatus = 'STARTED') {
   slackSend (color: colorCode, message: summary)
 }
 
-node{
-  properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), pipelineTriggers([pollSCM('* * * * *')])])
+node {
+    try {
+      
+       properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), pipelineTriggers([pollSCM('* * * * *')])])
 echo "Build Number is : ${env.BUILD_NUMBER}"
 echo "Job Name is : ${env.JOB_NAME}"
 def mavenHome = tool name: 'maven3.8.5'
@@ -56,4 +58,33 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.
 }
 }
 
+        notifyBuild('STARTED')
+
+        stage('Prepare code') {
+            echo 'do checkout stuff'
+        }
+
+        stage('Testing') {
+            echo 'Testing'
+            echo 'Testing - publish coverage results'
+        }
+
+        stage('Staging') {
+            echo 'Deploy Stage'
+        }
+
+        stage('Deploy') {
+            echo 'Deploy - Backend'
+            echo 'Deploy - Frontend'
+        }
+
+  } catch (e) {
+    // If there was an exception thrown, the build failed
+    currentBuild.result = "FAILED"
+    throw e
+  } finally {
+    // Success or failure, always send notifications
+    notifyBuild(currentBuild.result)
+  }
 }
+ 
