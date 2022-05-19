@@ -1,1 +1,27 @@
 
+node{
+
+def mavenHome = tool name: 'maven3.8.5'
+
+//Get the Code from git hub
+
+stage('CheckoutCode'){
+git branch: 'development', credentialsId: '9750b4d2-c9fa-4d69-9a28-dfdda803a4ce', url: 'https://github.com/bmaheswarn/maven-web-application.git'
+}
+
+//Do the Build using Maven
+
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+//Execute SonarQube Report
+stage('ExecuteSonarQubeReport'){
+sh "${mavenHome}/bin/mvn sonar:sonar"
+}
+//Upload Artifacts into Artifacts Repository
+stage('UploandArtifactsintoArticactsRepository'){
+sh "${mavenHome}/bin/mvn deploy"
+}
+
+}
